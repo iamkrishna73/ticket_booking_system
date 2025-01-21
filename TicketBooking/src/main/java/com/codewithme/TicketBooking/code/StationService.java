@@ -3,28 +3,30 @@ package com.codewithme.TicketBooking.code;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Optional;
 
 @Service
 public class StationService {
 
-    private final StationRepository stationRepository;
+    @Autowired
+    private StationRepository stationRepository;
 
-    public StationService(StationRepository stationRepository) {
-        this.stationRepository = stationRepository;
-    }
-
-    public void initializeStations(Map<String, Map<String, Object>> stations) {
-        stations.forEach((name, details) -> {
-            Station station = new Station();
-            station.setName(name);
-            station.setPrice((int) details.getOrDefault("price", 0));
-            stationRepository.save(station);
-        });
-    }
-
+    // Get all stations
     public List<Station> getAllStations() {
         return stationRepository.findAll();
+    }
+
+    // Get station by name
+    public Optional<Station> getStationByName(String name) {
+        return stationRepository.findByName(name);
+    }
+
+    // Load stations from JSON (if required)
+    public void loadStationsFromJson(List<Station> stations) {
+        stationRepository.saveAll(stations);
     }
 }
 

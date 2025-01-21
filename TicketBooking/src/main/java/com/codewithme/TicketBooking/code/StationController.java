@@ -5,54 +5,32 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @RestController
-@RequestMapping("/stations")
+@RequestMapping("/api/stations")
 public class StationController {
 
+    @Autowired
+    private StationService stationService;
 
-    private final StationService stationService;
-
-    public StationController(StationService stationService) {
-        this.stationService = stationService;
-    }
-
-    @PostMapping("/init")
-    public String initializeStations(@RequestBody Map<String, Map<String, Object>> stationData) {
-        stationService.initializeStations(stationData.get("stations"));
-        return "Stations initialized successfully";
-    }
-
-    @PostMapping("/add-default")
-    public String addDefaultStations() {
-        Map<String, Map<String, Object>> defaultStations = Map.of(
-                "A", Map.of("startStation", true, "price", 0),
-                "B", Map.of("price", 5),
-                "C", Map.of("price", 15),
-                "D", Map.of("lastStation", true, "price", 50),
-                "E", Map.of("price", 20),
-                "F", Map.of("price", 30),
-                "G", Map.of("price", 25),
-                "H", Map.of("price", 35),
-                "I", Map.of("price", 40),
-                "J", Map.of("price", 45),
-                "K", Map.of("price", 55),
-                "L", Map.of("price", 60),
-                "M", Map.of("price", 65),
-                "N", Map.of("price", 70),
-                "O", Map.of("price", 75),
-                "P", Map.of("price", 80),
-                "Q", Map.of("price", 85),
-                "R", Map.of("price", 90),
-                "S", Map.of("price", 95),
-                "T", Map.of("lastStation", true, "price", 100)
-        );
-
-        stationService.initializeStations(defaultStations);
-        return "Default stations added successfully";
-    }
-
+    // Endpoint to get all stations
     @GetMapping
-    public List<Station> getAllStations() {
-        return stationService.getAllStations();
+    public ResponseEntity<List<Station>> getAllStations() {
+        List<Station> stations = stationService.getAllStations();
+        return ResponseEntity.ok(stations);
+    }
+
+    // Endpoint to get a station by name
+    @GetMapping("/{name}")
+    public ResponseEntity<Station> getStationByName(@PathVariable String name) {
+        return stationService.getStationByName(name)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }
+

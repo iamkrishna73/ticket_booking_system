@@ -9,29 +9,36 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
 @RestController
-@RequestMapping("/tickets")
+@RequestMapping("/api/tickets")
 public class TicketController {
-    private final TicketService ticketService;
 
+    @Autowired
+    private TicketService ticketService;
 
-    public TicketController(TicketService ticketService) {
-        this.ticketService = ticketService;
-    }
-
+    // Endpoint to generate a new ticket
     @PostMapping("/generate")
-    public Map<String, String> generateTicket(@RequestParam String source, @RequestParam String destination) {
-        Ticket ticket = ticketService.createTicket(source, destination);
-        return Map.of(
-                "ticketId", ticket.getTicketId(),
-                "expiryTime", ticket.getExpiryTime().toString()
-        );
+    public ResponseEntity<Ticket> generateTicket() {
+        Ticket ticket = ticketService.generateTicket();
+        return ResponseEntity.ok(ticket);
     }
 
-    @PostMapping("/use")
-    public String useTicket(@RequestParam String ticketId, @RequestParam boolean isEntry) {
-        ticketService.useTicket(ticketId, isEntry);
-        return isEntry ? "Ticket validated for entry." : "Ticket validated for exit.";
+    // Endpoint to validate entry
+    @PostMapping("/validate-entry")
+    public ResponseEntity<String> validateEntry(@RequestParam String ticketId, @RequestParam String entryStation) {
+        String response = ticketService.validateEntry(ticketId, entryStation);
+        return ResponseEntity.ok(response);
     }
 
+    // Endpoint to validate exit
+    @PostMapping("/validate-exit")
+    public ResponseEntity<String> validateExit(@RequestParam String ticketId, @RequestParam String exitStation) {
+        String response = ticketService.validateExit(ticketId, exitStation);
+        return ResponseEntity.ok(response);
+    }
 }
